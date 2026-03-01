@@ -44,44 +44,32 @@ The workflow diagram (see `workflow_diagram.md` or `workflow_diagram.png`) shows
 
 ## 2. Evaluation Results (test_results.csv)
 
-After running:
+The system was evaluated by running `python project_starter.py`, which loads the full **quote_requests_sample.csv** (20 requests), processes each row in date order via `process_customer_request`, and writes **test_results.csv** with columns: `request_id`, `request_date`, `cash_balance`, `inventory_value`, `response`. The submitted **test_results.csv** is included with this report.
 
-```bash
-python project_starter.py
-```
+### 2.1 Rubric conditions demonstrated in test_results.csv
 
-the script:
+**At least three requests result in a change to cash balance.**  
+In **test_results.csv**, the `cash_balance` column shows multiple step changes. For example: after request 1 it is $50,118.50; after request 4 it is $50,294.00; after request 5 it is $50,516.80; after request 6 it is $50,702.30; and it continues to increase after requests 9, 10, 12, 13, 16, and 18. Thus requests 1, 4, 5, 6, 9, 10, 12, 13, 16, and 18 each result in a change to cash balance (fulfilled sales), satisfying the requirement of at least three.
 
-- Initializes the DB with `init_database(db_engine)`.
-- Loads **quote_requests_sample.csv** and processes each row in date order.
-- For each row, calls `process_customer_request(request_text, request_date)`, which runs the orchestrator (and thus inventory, quoting, and sales as needed).
-- Appends a row to **results** with `request_id`, `request_date`, `cash_balance`, `inventory_value`, `response`.
-- Writes **test_results.csv** and prints a final financial summary.
+**At least three quote requests successfully fulfilled.**  
+The `response` column shows multiple orders and quotes fulfilled. For example: Request 1 — “We have fulfilled your request… Total: $118.50”; Request 4 — “Quote accepted and order fulfilled… Total $175.50”; Request 5 — “Order fulfilled… Total $222.80”; Request 6 — “Your order has been fulfilled… Total $185.50”; Request 9 — “Order fulfilled… Total $112.90”; Request 10 — “Order fulfilled… Total $183.30”; Request 12 — “Order fulfilled… Total $187.30”; Request 13 — “Order fulfilled… Total $183.00”; Request 16 — “Order fulfilled… Total $183.50”; Request 18 — “Order fulfilled… Total $183.50”. Request 19 provides a quote (“We have provided a quote… Total quote: $710.00”) without a sale in that row. Thus at least three (and in fact many more) quote/order requests are successfully fulfilled.
 
-**Expected behavior relative to the rubric:**
-
-- **At least three requests result in a change to cash balance** – Any request that leads to a fulfilled sale (via the Sales agent and `create_transaction(..., 'sales')`) will change cash. The orchestrator is instructed to delegate to the Sales agent for orders; multiple sample rows are orders, so several should result in sales and thus cash changes.
-- **At least three quote requests successfully fulfilled** – Sample rows include both quote requests and orders. The Quoting agent is used for “quote” style requests; the Sales agent is used for “place order” style requests. Running the full sample should yield multiple successful quotes and multiple fulfilled orders.
-- **Not all requests fulfilled, with reasons** – Some requests ask for items or quantities we don’t carry or don’t have in stock (e.g. “A3 paper”, “balloons”, “reams”). The Sales agent is instructed to check stock and only call `fulfill_order` when stock is sufficient; otherwise it should explain that the order cannot be fulfilled (e.g. insufficient stock or item not available). So some rows in **test_results.csv** will show “unfulfilled” with explanations.
-
-If **test_results.csv** is not yet generated, run:
-
-```bash
-pip install -r requirements.txt
-python project_starter.py
-```
-
-and then inspect **test_results.csv** for the columns above.
+**Not all requests fulfilled, with reasons provided.**  
+Several rows show the system declining to fulfill and explain why. Examples from the `response` column: Request 2 — “We are unable to fulfill this order in full. We do not carry balloons.”; Request 3 — “We cannot fulfill this order as requested. We do not stock A3 paper or reams of printer paper in the quantities specified.”; Request 7 — “We cannot fulfill the full order. We do not stock A3 paper or 24x36 poster boards…”; Request 8 — “Unable to fulfill. We do not carry A5 colored paper… Stock is insufficient for the full quantities requested.”; Request 14 — “Current stock… is insufficient for 5000, 2000, and 500 units respectively.”; Request 20 — “We do not produce tickets or the volume of flyers and posters requested.” So not all requests are fulfilled, and the response column clearly states reasons (item not carried, insufficient stock, or quantity not available).
 
 ---
 
-## 3. Strengths of the Implemented System
+## 3. Strengths of the Implemented System (with reference to test_results.csv)
 
-- **Clear separation of roles**: Orchestrator vs. Inventory, Quoting, and Sales avoids overlapping responsibilities and keeps each agent’s tools focused.
-- **Full use of starter helpers**: All seven required helpers are used in tools as specified, with a clear mapping from diagram to code.
-- **Consistent date handling**: `RequestContext.request_date` ensures all DB and delivery logic uses the same date, which is important for reproducible evaluation and time-ordered samples.
-- **Customer-facing behavior**: The orchestrator is instructed to summarize outcomes and give brief rationale (e.g. discounts, inability to fulfill) without exposing internal data or PII.
-- **Single submission file**: The entire multi-agent system lives in **project_starter.py**, so the evaluator has one place to run and inspect the flow.
+- **Clear separation of roles**: The orchestrator delegates to Inventory, Quoting, and Sales agents. This is reflected in **test_results.csv** by consistent, task-appropriate responses: fulfilled orders state what was supplied and the total; unfulfilled ones explain missing items or stock limits (e.g. request 2’s “We do not carry balloons”, request 3’s “We do not stock A3 paper or reams”).
+
+- **Full use of starter helpers**: All seven required helpers are used in tools (see Section 1). The evaluation output is consistent with that: cash balance and inventory value in **test_results.csv** evolve as sales and stock are applied (e.g. `inventory_value` decreases from about $12,450 to about $10,700 as orders are fulfilled), which would not occur without `create_transaction`, `get_stock_level`, and related helpers.
+
+- **Consistent date handling**: `RequestContext.request_date` is used for all DB and delivery queries. The **test_results.csv** `request_date` column matches the sample (e.g. 2025-04-01 through 2025-04-17), and responses reference delivery dates (e.g. “Delivery by April 15, 2025”) in a coherent way.
+
+- **Customer-facing behavior**: Responses in **test_results.csv** are professional and informative without exposing internals. Fulfilled orders state totals and discounts (e.g. request 5: “Total $222.80 with party-order discount”); unfulfilled ones give clear reasons (e.g. request 8: “We do not carry A5 colored paper… Stock is insufficient”) without revealing internal errors or PII.
+
+- **Single submission file**: The entire multi-agent system lives in **project_starter.py**, and the same script produces the submitted **test_results.csv**, so evaluators can run the full sample and reproduce the results.
 
 ---
 

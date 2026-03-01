@@ -92,11 +92,11 @@ Output will include:
 
 ## Submission Checklist
 
-Make sure to submit the following files:
+**Include all of the following in your submission:**
 
-1. Your completed `project_starter.py` with all agent logic
-2. A **workflow diagram** (`workflow_diagram.png` — export from `workflow_diagram.md` if needed)
-3. A reflection report (`REFLECTION_REPORT.md`) explaining the system and evaluation
-4. Outputs from your test run (`test_results.csv`)
+1. **project_starter.py** — completed implementation with all agent logic
+2. **workflow_diagram.png** — workflow diagram (export from `workflow_diagram.md` via [Mermaid Live](https://mermaid.live) if needed)
+3. **REFLECTION_REPORT.md** — reflection report that explains the system and **discusses evaluation results from test_results.csv** (specific request IDs, cash balance changes, fulfilled vs unfulfilled, and reasons from the response column)
+4. **test_results.csv** — **required.** Generate it by running `python project_starter.py` (after `pip install -r requirements.txt` and with `UDACITY_OPENAI_API_KEY` set). The file must show: at least three requests with a change to cash balance, at least three quote/order requests successfully fulfilled, and some requests not fulfilled with reasons in the response column.
 
 ---
